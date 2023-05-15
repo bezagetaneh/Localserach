@@ -120,64 +120,7 @@ def simulated_annealing(cities, temperature, cooling_rate, stopping_temperature,
         iteration += 1
     
     return best_tour, best_length
-def calculate_tour_distance(tour, cities):
-    distance = 0
-    for i in range(len(tour)):
-        distance += distance(cities[tour[i]], cities[tour[(i+1)%len(tour)]])
-    return distance
 
-def generate_initial_population(num_tours, num_cities):
-    population = []
-    for i in range(num_tours):
-        tour = list(range(num_cities))
-        random.shuffle(tour)
-        population.append(tour)
-    return population
-
-def select_parents(population,cities):
-    fitnesses = [calculate_tour_distance(tour, cities) for tour in population]
-    total_fitness = sum(fitnesses)
-    probabilities = [fitness/total_fitness for fitness in fitnesses]
-    parent1 = random.choices(population, probabilities)[0]
-    parent2 = random.choices(population, probabilities)[0]
-    return parent1, parent2
-
-def order_crossover(parent1, parent2):
-    n = len(parent1)
-    i = random.randrange(n)
-    j = random.randrange(n)
-    if i > j:
-        i, j = j, i
-    offspring = [-1] * n
-    for k in range(i, j+1):
-        offspring[k] = parent1[k]
-    remaining_cities = [c for c in parent2 if c not in offspring]
-    k = j + 1
-    for c in remaining_cities:
-        if k == n:
-            k = 0
-        if offspring[k] == -1:
-            offspring[k] = c
-            k += 1
-    return offspring
-
-def swap_mutation(tour):
-    i = random.randrange(len(tour))
-    j = random.randrange(len(tour))
-    tour[i], tour[j] = tour[j], tour[i]
-    return tour
-
-def run_ga(num_generations, population_size, cities):
-    population = generate_initial_population(population_size, len(cities))
-    for generation in range(num_generations):
-        parent1, parent2 = select_parents(population,cities)
-        offspring = order_crossover(parent1, parent2)
-        offspring = swap_mutation(offspring)
-        population.append(offspring)
-        population.sort(key=lambda tour: calculate_tour_distance(tour, cities))
-        population = population[:population_size]
-        print(f"Generation {generation+1}: {calculate_tour_distance(population[0], cities)}")
-    return population[0]
 
 
 
@@ -186,8 +129,8 @@ def main():
     # Define the command-line arguments
     parser = argparse.ArgumentParser('choose one')
   
-    parser.add_argument('--algorithm', choices=['ga', 'hc', 'sa'], required=True,
-                        help='Algorithm to use (ga: Genetic Algorithm, hc: Hill Climbing, sa: Simulated Annealing)')
+    parser.add_argument('--algorithm', choices=[ 'hc', 'sa'], required=True,
+                        help='Algorithm to use (hc: Hill Climbing, sa: Simulated Annealing)')
     parser.add_argument('--file', type=str, help='The input file containing the city list')
     # Parse the command-line arguments
     args = parser.parse_args()
@@ -200,13 +143,8 @@ def main():
     cooling_rate = 0.99
     stopping_temperature = 1e-8
     stopping_iter = 1000
-    if args.algorithm == 'ga':
-        
-        #solution = genetic_algorithm(items, max_weight)
-        tour = run_ga(num_generations=100, population_size=20, cities=cities)
-        print(tour)
-        print(tour_length(tour, cities))
-    elif args.algorithm == 'hc':
+    
+    if args.algorithm == 'hc':
         current_path,current_distance,path, distance = hill_climb(cities)
         print('rando path:', ' -> '.join( current_path))
         print('rando path Distance:',  current_distance)
