@@ -15,8 +15,6 @@ def load_cities(input_file):
     return cities
  
 
-
-
 # Calculate the Straight line distance between two cities
 def distance(city1, city2):
     x1, y1 = city1
